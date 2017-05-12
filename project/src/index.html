@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Calendar</title>
+        <link rel="stylesheet" href="style/additional/libs.css">
+        <link rel="stylesheet" href="style/style.css">
+    </head>
+    <body>
+        <nav class="nav has-shadow">
+            <div class="nav-item">
+                <label for="month_selector">
+                    Month:
+                </label>
+                <select id="month_selector">
+                </select>
+
+                <label for="year_selector">
+                    Year:
+                </label>
+                <select id="year_selector">
+                </select>
+            </div>
+            <div class="nav-item">
+                <input type="button" class="button is-primary" id="show_button" value="Show">
+            </div>
+        </nav>
+
+        <div class="modal" id="event_window">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" id="title">Event on </p>
+                    <button class="delete" id="close_button"></button>
+                </header>
+                <section class="modal-card-body">
+                    <input type="text" id="event_text">
+                </section>
+                <footer class="modal-card-foot">
+                    <input type="button" class="button is-primary" id="success_button" value="Add">
+                    <input type="button" class="button" id="cancel_button" value="Cancel">
+                </footer>
+            </div>
+        </div>
+
+        <p>
+            Some sample text
+        </p>
+
+        <script src="js/main.js"></script>
+    </body>
+</html>

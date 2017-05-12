@@ -1,0 +1,31 @@
+{
+  "name": "calendar",
+  "version": "1.0.0",
+  "description": "homework sem05task03",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\u0016https://github.com/LaBestiaBY/calendar_homework.git"
+  },
+  "keywords": [
+    "calendar",
+    "homework"
+  ],
+  "author": "LaBestia",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.18.8",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^2.1.2",
+    "gulp-watch": "^4.3.11"
+  },
+  "dependencies": {
+    "bulma": "^0.4.1"
+  }
+}
