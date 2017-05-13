@@ -2,13 +2,52 @@
  * Created by LaBestia on 11.05.2017.
  */
 ;
-//var eventWindow = document.getElementById('event_window2');
-//console.log(eventWindow);
 
+/**
+ * Constant names of days of week
+ * @type {[*]}
+ */
+var NAMES_OF_DAYS = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+
+/**
+ * Constant names of months
+ * @type {[*]}
+ */
+var NAMES_OF_MONTHS = ['January', 'February', 'March',
+    'April', 'May', 'June',
+    'July', 'August', 'September',
+    'October', 'November', 'December'];
+
+/**
+ *
+ */
 window.onload = function()
 {
     var showButton = document.getElementById('show_button');
     showButton.addEventListener('click', showButtonClickHandler);
+    showButton.disabled = true;
+
+    // Init Selectors
+    var monthSelector = document.getElementById('month_selector');
+    monthSelector.addEventListener('change', selectorChangeHandler);
+    monthSelector.appendChild(getOption(-1, '-choose month-'));
+
+    for (var month = 0; month < NAMES_OF_MONTHS.length; month++)
+    {
+        monthSelector.appendChild(getOption(month, NAMES_OF_MONTHS[month]));
+    }
+
+    var yearSelector = document.getElementById('year_selector');
+    yearSelector.addEventListener('change', selectorChangeHandler);
+    yearSelector.appendChild(getOption(-1, '-choose year-'));
+
+    for (var year = new Date().getFullYear(); year >= 1900; year--)
+    {
+        yearSelector.appendChild(getOption(year, year));
+    }
+
+    var calendar = new Calendar();
+    calendar.render();
 
     /**
      *
@@ -16,12 +55,15 @@ window.onload = function()
      */
     function showButtonClickHandler(e)
     {
-        // var target = e.target;
-        // alert(target.id + ' was clicked!');
+        calendar.render( monthSelector[monthSelector.selectedIndex].value, yearSelector[yearSelector.selectedIndex].value );
+    }
 
-        var addNewEventWindow = showModal('event_window', 'Event on random day');
-        addNewEventWindow.addEventListener('success', closeWindowHandler);
-
+    /**
+     *
+     */
+    function selectorChangeHandler()
+    {
+        showButton.disabled = monthSelector.selectedIndex === 0 || yearSelector.selectedIndex ===0;
     }
 
     /**
@@ -39,34 +81,39 @@ window.onload = function()
 
 };
 
-// var showModal = function(elementId)
-//                 {
-//                     var eventWindow = document.getElementById(elementId);
-//                     eventWindow.classList.add('is-active');
-//                     eventWindow.addEventListener('click', modalButtonsHandler);
-//
-//                     function modalButtonsHandler(e)
-//                     {
-//                         var target = e.target;
-//
-//                         if (target.id === 'success_button')
-//                         {
-//                             this.classList.remove('is-active');
-//
-//                             var closeEvent = document.createEvent("Event");
-//                             closeEvent.initEvent("success", true, true);
-//                             closeEvent.customParam = document.getElementById('event_text').value;
-//
-//                             eventWindow.dispatchEvent(closeEvent);
-//                         }
-//
-//                         if (target.id === 'cancel_button' || target.id === 'close_button')
-//                         {
-//                             this.classList.remove('is-active');
-//                         }
-//                     }
-//
-//                     return eventWindow;
-//                 };
+/**
+ *
+ * @param value
+ * @param text
+ * @returns {Element|*}
+ */
+var getOption = function (value, text)
+{
+    var option = document.createElement('option');
+    option.value = value;
+    option.innerHTML = text;
 
+    return option;
+};
 
+/**
+ * Calculates days in month
+ * @returns {number}
+ */
+Date.prototype.daysInMonth = function()
+{
+    return 32 - new Date(this.getFullYear(), this.getMonth(), 32).getDate();
+};
+
+/**
+ * Calculates full weeks (rows for calendar) in month
+ * @returns {number}
+ */
+Date.prototype.fullWeeksInMonth = function()
+{
+    var day = new Date(this.getFullYear(), this.getMonth(), 1).getDay();
+    day = day === 0 ? 7 : day;
+    var sumOfDays = day - 1 + this.daysInMonth();
+
+    return Number(Math.floor(sumOfDays / 7) + Boolean(sumOfDays % 7));
+};

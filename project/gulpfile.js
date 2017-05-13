@@ -67,15 +67,15 @@ gulp.task('build', ['build:html', 'build:js', 'build:css']);
 
 gulp.task('watch', function()
                     {
-                        watch('src/*.html', function (event, cb)
+                        watch('src/*.html', function ()
                                             {
                                                 gulp.start('build:html');
                                             });
-                        watch('src/js/**/*.js', function (event, cb)
+                        watch('src/js/**/*.js', function ()
                                                 {
                                                     gulp.start('build:js');
                                                 });
-                        watch('src/style/**/*.scss', function(event, cb)
+                        watch('src/style/**/*.scss', function()
                                                         {
                                                             gulp.start('build:css');
                                                         });
