@@ -1,3 +1,19 @@
+body
+{
+  background-color: #ba9dff;
+  height: 100%;
+}
+
+.box
+{
+  margin: 15px;
+}
+
+.column
+{
+  text-align: center;
+}
+
 select
 {
   margin-left: 5px;
@@ -6,17 +22,12 @@ select
 
 #event_text
 {
-  width:100%;
-}
-
-.table
-{
-  width: 90%;
-  margin: 10px;
+  width: 100%;
 }
 
 .table th, .table td
 {
+  border-color: #7151bb;
   height: 100px;
   width: 13%;
   vertical-align: middle;
@@ -24,32 +35,26 @@ select
 
 .table th
 {
+  background-color: #dddddd;
   text-align: right;
 }
 
 .table td
 {
+  background-color: #eeeeee;
   text-align: right;
-}
-
-.table tr:hover
-{
-  background-color: white;
-}
-
-.table td:hover
-{
-  background-color: #ccffcc;
 }
 
 .table thead th:last-child, .table thead th:nth-last-child(2)
 {
-  color: red;
+  background-color: #8660dd;
+  color: #4b367c;
 }
 
 .table td:last-child, .table td:nth-last-child(2)
 {
-  color: red;
+  background-color: #ac89ff;
+  color: #4b367c;
 }
 
 ul
@@ -58,7 +63,7 @@ ul
   margin: 10px;
 }
 
-#previous, #next
+#date
 {
-  margin-left: 5px;
+  width: 30%;
 }

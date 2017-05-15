@@ -4,19 +4,13 @@
 ;
 
 /**
- * Constant names of days of week
- * @type {[*]}
- */
-var NAMES_OF_DAYS = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-
-/**
  * Constant names of months
  * @type {[*]}
  */
-var NAMES_OF_MONTHS = ['January', 'February', 'March',
-    'April', 'May', 'June',
-    'July', 'August', 'September',
-    'October', 'November', 'December'];
+var NAMES_OF_MONTHS =  ['January', 'February', 'March',
+                        'April', 'May', 'June',
+                        'July', 'August', 'September',
+                        'October', 'November', 'December'];
 
 /**
  *
@@ -47,6 +41,7 @@ window.onload = function()
     }
 
     var calendar = new Calendar();
+    calendar.init();
     calendar.render();
 
     /**
@@ -66,20 +61,11 @@ window.onload = function()
         showButton.disabled = monthSelector.selectedIndex === 0 || yearSelector.selectedIndex ===0;
     }
 
-    /**
-     *
-     * @param e
-     */
-    function closeWindowHandler(e)
-    {
-        var target = e.target;
-        console.log('close event target = ' + target.className + ' with custom parameter = ' + e.customParam);
-
-        target.removeEventListener('success', closeWindowHandler);
-    }
-
-
 };
+
+
+
+
 
 /**
  *
@@ -94,6 +80,85 @@ var getOption = function (value, text)
     option.innerHTML = text;
 
     return option;
+};
+
+/**
+ * Finds child element for parent node
+ * @param parentNode
+ * @param tagName
+ * @returns {*}
+ */
+var findChild = function (parentNode, tagName)
+{
+    for (var i = 0; i < parentNode.children.length; i++)
+    {
+        if (parentNode.children[i].tagName === tagName.toUpperCase())
+        {
+            return parentNode.children[i];
+        }
+    }
+
+    return null;
+};
+
+/**
+ * Creates button (bulma)
+ * @param id
+ * @param name
+ * @param icon
+ * @returns {Element}
+ */
+var getButton = function (id, name, icon)
+{
+    var button = document.createElement('a');
+
+    var span = document.createElement('span');
+    span.className = 'icon is-large';
+    span.setAttribute('id', id);
+    button.appendChild(span);
+
+    var el = document.createElement('i');
+    el.className = icon;
+    el.innerHTML = name;
+    span.appendChild(el);
+
+    return button;
+};
+
+/**
+ * Creates tag (bulma)
+ * @param id
+ * @param kind
+ * @param text
+ * @returns {Element}
+ */
+var getTag = function (id, kind, text)
+{
+    var tag = document.createElement('span');
+    tag.className = kind;
+    tag.setAttribute('id', id);
+    tag.innerHTML = text;
+
+    return tag;
+};
+
+/**
+ * Creates column for element columns (bulma)
+ * @param child
+ * @param size
+ * @returns {Element}
+ */
+var getColumn = function(child, size)
+{
+    var column = document.createElement('div');
+    column.className = 'column';
+    if (size)
+    {
+        column.classList.add(size);
+    }
+    column.appendChild(child);
+
+    return column;
 };
 
 /**
