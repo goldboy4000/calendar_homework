@@ -25,6 +25,8 @@ function Calendar()
      */
     var NAMES_OF_DAYS = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
+    this.chosenDay = new Date().getDate();
+
     var month = [].shift.call(arguments) || new Date().getMonth();
     var year = [].shift.call(arguments) || new Date().getFullYear();
 
@@ -44,7 +46,9 @@ function Calendar()
         return year;
     });
 
-    this.chosenDay = new Date().getDate();
+    this.id = 'calendar';
+
+    this.selector = '#' + this.id;
 
     /**
      * _private_
@@ -67,6 +71,12 @@ function Calendar()
     this.tasks = [];
 
     /**
+     * Key of tasks for local storage
+     * @type {string}
+     */
+    this.tasksLocalStorageKey = 'tasks';
+
+    /**
      * Modal window for entering tasks
      * @type {Modal}
      */
@@ -75,14 +85,15 @@ function Calendar()
     /**
      * _private_
      * Creates navigation for calendar
+     * @param title
      * @returns {Element}
      */
-    var getNavigationElement = function ()
+    var getNavigationElement = function (title)
     {
         var nav = document.createElement('div');
         nav.className = 'columns';
         nav.appendChild(getColumn(getButton('previous', '', 'fa fa-arrow-circle-o-left')));
-        nav.appendChild(getColumn(getTag('date', 'title', 'is-primary', 'is-large', NAMES_OF_MONTHS[month] + ' ' + year), 'is-three-quarters'));
+        nav.appendChild(getColumn(getTag('date', 'title', 'is-primary', 'is-large', title), 'is-three-quarters'));
         nav.appendChild(getColumn(getButton('next', '', 'fa fa-arrow-circle-o-right')));
 
         return nav;
@@ -102,12 +113,24 @@ function Calendar()
 
         for (var i = 0; i < NAMES_OF_DAYS.length; i++)
         {
-            var column = document.createElement('th');
-            column.innerHTML = NAMES_OF_DAYS[i];
-            headerRow.appendChild(column);
+            headerRow.appendChild( getHeaderCell(NAMES_OF_DAYS[i]) );
         }
 
         return thead;
+    };
+
+    /**
+     * _private_
+     * Creates cell for header of calendar
+     * @param value
+     * @returns {Element}
+     */
+    var getHeaderCell = function (value)
+    {
+        var cell = document.createElement('th');
+        cell.innerHTML = value;
+
+        return cell;
     };
 
     /**
@@ -160,7 +183,7 @@ function Calendar()
     {
         var calendar = document.createElement('table');
         calendar.className = 'table is-bordered';
-        calendar.setAttribute('id', 'calendar');
+        calendar.setAttribute('id', this.id);
 
         calendar.appendChild(getHeader());
         calendar.appendChild(getBody());
@@ -182,19 +205,23 @@ function Calendar()
 
     /**
      * Adds new task
+     * @param day
+     * @param month
+     * @param year
      * @param message
+     * @returns {Calendar}
      */
-    this.addTask = function (message)
+    this.addTask = function (day, month, year, message)
     {
-        var taskDate = new Date(year, month, this.chosenDay);
-
-        var task = new Task(message, taskDate);
+        var task = new Task(message, new Date(year, month, day));
         this.tasks.push(task);
-        this.render();
+
+        return this;
     };
 
     /**
-     *
+     * Removes task
+     * @param id
      */
     this.removeTask = function (id)
     {
@@ -203,23 +230,18 @@ function Calendar()
             if (task instanceof Task && task.id === id)
             {
                 this.tasks.splice(index, 1);
-                this.render();
             }
         }.bind(this));
+
+        return this;
     };
 
     /**
-     *
+     * Loads saves tasks from local storage
      */
-    this.init = function ()
+    this.loadTasksFromStorage = function ()
     {
-        var navigationContainer = document.querySelector(navigation);
-        navigationContainer.addEventListener('click', calendarNavClickHandler.bind(this));
-        var calendarContainer = document.querySelector(container);
-        calendarContainer.addEventListener('click', calendarClickHandler.bind(this));
-        calendarContainer.addEventListener('success', modalSuccessHandler.bind(this));
-
-        var data = localStorage.getItem('tasks');
+        var data = localStorage.getItem(this.tasksLocalStorageKey);
         try
         {
             var srcTasks = JSON.parse(data);
@@ -234,9 +256,80 @@ function Calendar()
         {
             this.tasks = [];
         }
+    };
+
+    /**
+     * Setups Handlers for calendar
+     */
+    this.setupHandlers = function ()
+    {
+        var navigationContainer = document.querySelector(navigation);
+        navigationContainer.addEventListener('click', calendarNavClickHandler.bind(this));
+
+        var calendarContainer = document.querySelector(container);
+        calendarContainer.addEventListener('click', calendarClickHandler.bind(this));
+        calendarContainer.addEventListener('success', modalSuccessHandler.bind(this));
+
+        window.addEventListener('pagehide', exitFromPageHandler.bind(this));
+    };
+
+    /**
+     *
+     */
+    this.init = function ()
+    {
+        this.setupHandlers();
+        this.loadTasksFromStorage();
 
         return this;
     };
+
+    /**
+     * Rendering navigation panel for calendar
+     */
+    this.renderNavigationPanel = function ()
+    {
+        var navigationContainer = document.querySelector(navigation);
+        navigationContainer.innerHTML = '';
+        navigationContainer.appendChild( getNavigationElement( NAMES_OF_MONTHS[month] + ' ' + year ) );
+    };
+
+    /**
+     * Rendering calendar
+     */
+    this.renderCalendar = function ()
+    {
+        var calendarContainer = document.querySelector(container);
+        var table = calendarContainer.querySelector(this.selector);
+        if (table)
+        {
+            calendarContainer.removeChild(table);
+        }
+        calendarContainer.appendChild(getCalendarElement.call(this));
+    };
+
+    /**
+     * Rendering tasks
+     */
+    this.renderTasks = function ()
+    {
+        this.tasks.forEach(function(task)
+        {
+            var calendar = document.querySelector(this.selector);
+            if (task instanceof Task && task.date.getMonth() === month)
+            {
+                var taskDay = calendar.querySelector('#day' + task.date.getDate());
+                var taskList = taskDay.querySelector('.task_list');
+                if (!taskList)
+                {
+                    taskList = getTaskList();
+                    taskDay.insertBefore(taskList, taskDay.childNodes[0]);
+                }
+                taskList.appendChild(task.render());
+            }
+        }.bind(this));
+    };
+
 
     /**
      *
@@ -246,35 +339,11 @@ function Calendar()
         month = [].shift.call(arguments) || month;
         year = [].shift.call(arguments) || year;
 
-        // rendering navigation panel for calendar
-        var navigationContainer = document.querySelector(navigation);
-        navigationContainer.innerHTML = '';
-        navigationContainer.appendChild(getNavigationElement());
+        this.renderNavigationPanel();
 
-        // rendering calendar
-        var calendarContainer = document.querySelector(container);
-        var table = calendarContainer.querySelector('#calendar');
-        if (table)
-        {
-            calendarContainer.removeChild(table);
-        }
-        calendarContainer.appendChild(getCalendarElement());
+        this.renderCalendar();
 
-        //rendering tasks
-        this.tasks.forEach(function(task)
-        {
-            if (task instanceof Task && task.date.getMonth() === month)
-            {
-                var taskDay = calendarContainer.querySelector('#day' + task.date.getDate());
-                var taskList = taskDay.querySelector('.task_list');
-                if (!taskList)
-                {
-                    taskList = getTaskList();
-                    taskDay.insertBefore(taskList, taskDay.childNodes[0]);
-                }
-                taskList.appendChild(task.render());
-            }
-        });
+        this.renderTasks();
 
         return this;
     };
@@ -316,6 +385,16 @@ function Calendar()
     {
         return this.tasks;
     };
+
+    /**
+     *
+     */
+    this.saveTasksToStorage = function()
+    {
+        localStorage.removeItem(this.tasksLocalStorageKey);
+        localStorage.setItem(this.tasksLocalStorageKey, JSON.stringify(this));
+    };
+
 }
 
 /**
@@ -331,7 +410,7 @@ function calendarClickHandler(e)
         var idToRemove = +target.closest('.task').id;
         if (!isNaN(idToRemove))
         {
-            this.removeTask(idToRemove);
+            this.removeTask(idToRemove).render();
         }
 
         return;
@@ -353,7 +432,7 @@ function calendarClickHandler(e)
  */
 function modalSuccessHandler(e)
 {
-    this.addTask(e.detail.message);
+    this.addTask(this.chosenDay, this.month, this.year, e.detail.message).render();
 }
 
 /**
@@ -378,4 +457,13 @@ function calendarNavClickHandler(e)
         }
         target = target.parentNode;
     }
+}
+
+/**
+ *
+ * @param e
+ */
+function exitFromPageHandler(e)
+{
+    this.saveTasksToStorage();
 }

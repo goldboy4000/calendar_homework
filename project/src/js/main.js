@@ -15,16 +15,6 @@
         calendar.init().render();
     };
 
-    var exit = function (e)
-    {
-        if (calendar)
-        {
-            localStorage.removeItem('tasks');
-            localStorage.setItem('tasks', JSON.stringify(calendar));
-        }
-    };
-
     window.addEventListener('load', init);
-    window.addEventListener('pagehide', exit);
 
 }(window));
