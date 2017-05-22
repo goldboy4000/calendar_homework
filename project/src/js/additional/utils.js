@@ -6,7 +6,7 @@
  *
  * @param value
  * @param text
- * @returns {Element|*}
+ * @returns {Element}
  */
 var getOption = function (value, text)
 {
@@ -34,6 +34,34 @@ var findChild = function (parentNode, tagName)
     }
 
     return null;
+};
+
+var getSelector = function (id)
+{
+    var selector = document.createElement('select');
+    selector.setAttribute('id', id);
+
+    return selector;
+};
+
+/**
+ * Creates simple button (bulma)
+ * @param id
+ * @param name
+ * @param color
+ * @returns {Element}
+ */
+var getSimpleButton = function (id, name, color)
+{
+    var button = document.createElement('a');
+    button.className = 'button';
+    button.classList.add(color);
+    button.setAttribute('id', id);
+
+    var value = document.createTextNode(name);
+    button.appendChild(value);
+
+    return button;
 };
 
 /**

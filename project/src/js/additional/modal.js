@@ -73,7 +73,7 @@ Modal.prototype.modalKeyUpHandler = function(e)
  */
 Modal.prototype.show = function (title)
 {
-    this.modal.querySelector('#title').innerHTML = title ? title : 'New Event';
+    this.modal.querySelector('#title').innerHTML = title || 'New Event';
     this.modal.classList.add('is-active');
 };
 

@@ -16,7 +16,7 @@ var NAMES_OF_MONTHS =  ['January', 'February', 'March',
  *
  * @constructor
  */
-function Calendar()
+function Calendar(navContainerSelector, containerSelector, month, year)
 {
     /**
      * _private_
@@ -27,8 +27,8 @@ function Calendar()
 
     this.chosenDay = new Date().getDate();
 
-    var month = [].shift.call(arguments) || new Date().getMonth();
-    var year = [].shift.call(arguments) || new Date().getFullYear();
+    var month = month || new Date().getMonth();
+    var year = year || new Date().getFullYear();
 
     /**
      * getter for private variable 'month'
@@ -46,8 +46,16 @@ function Calendar()
         return year;
     });
 
+    /**
+     *
+     * @type {string}
+     */
     this.id = 'calendar';
 
+    /**
+     *
+     * @type {string}
+     */
     this.selector = '#' + this.id;
 
     /**
@@ -55,14 +63,14 @@ function Calendar()
      * Selector of container for navigation
      * @type {string}
      */
-    var navigation = '#calendar_nav_container';
+    var navigation = navContainerSelector;
 
     /**
      * _private_
      * Selector of container for calendar
      * @type {string}
      */
-    var container = '#calendar_container';
+    var container = containerSelector;
 
     /**
      * Array of tasks
@@ -271,6 +279,8 @@ function Calendar()
         calendarContainer.addEventListener('success', modalSuccessHandler.bind(this));
 
         window.addEventListener('pagehide', exitFromPageHandler.bind(this));
+
+        window.addEventListener('selectdate', menuSelectDateHandler.bind(this))
     };
 
     /**
@@ -466,4 +476,13 @@ function calendarNavClickHandler(e)
 function exitFromPageHandler(e)
 {
     this.saveTasksToStorage();
+}
+
+/**
+ *
+ * @param e
+ */
+function menuSelectDateHandler(e)
+{
+    this.render(e.detail.month, e.detail.year);
 }

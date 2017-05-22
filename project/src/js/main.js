@@ -7,11 +7,12 @@
 {
     'use strict';
 
-    var calendar;
-
     var init = function ()
     {
-        calendar = new Calendar();
+        var menu = new Menu('#menu_container', 'show-button', 'month-selector', 'year-selector');
+        menu.init().render();
+
+        var calendar = new Calendar('#calendar_nav_container', '#calendar_container', 1, 2017);
         calendar.init().render();
     };
 
