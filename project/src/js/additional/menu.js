@@ -81,7 +81,7 @@ function showButtonClickHandler(e)
 {
     var target = e.target;
 
-    if (target.id === this.buttonId)
+    if (target.id === this.buttonId && !target.hasAttribute('disabled'))
     {
         monthSelector = document.getElementById(this.monthSelectorId);
         yearSelector = document.getElementById(this.yearSelectorId);

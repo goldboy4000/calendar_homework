@@ -16,7 +16,7 @@ var NAMES_OF_MONTHS =  ['January', 'February', 'March',
  *
  * @constructor
  */
-function Calendar(navContainerSelector, containerSelector, month, year)
+function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
 {
     /**
      * _private_
@@ -27,8 +27,8 @@ function Calendar(navContainerSelector, containerSelector, month, year)
 
     this.chosenDay = new Date().getDate();
 
-    var month = month || new Date().getMonth();
-    var year = year || new Date().getFullYear();
+    var month = !isNaN(+initMonth) ? +initMonth : new Date().getMonth();
+    var year = !isNaN(+initYear) ? +initYear : new Date().getFullYear();
 
     /**
      * getter for private variable 'month'
@@ -74,9 +74,9 @@ function Calendar(navContainerSelector, containerSelector, month, year)
 
     /**
      * Array of tasks
-     * @type {Array}
+     * @type {{}}
      */
-    this.tasks = [];
+    this.tasks = {};
 
     /**
      * Key of tasks for local storage
@@ -222,7 +222,13 @@ function Calendar(navContainerSelector, containerSelector, month, year)
     this.addTask = function (day, month, year, message)
     {
         var task = new Task(message, new Date(year, month, day));
-        this.tasks.push(task);
+
+        var key = month + '_' + year;
+        if (!this.tasks[key])
+        {
+            this.tasks[key] = [];
+        }
+        this.tasks[key].push(task);
 
         return this;
     };
@@ -233,13 +239,17 @@ function Calendar(navContainerSelector, containerSelector, month, year)
      */
     this.removeTask = function (id)
     {
-        this.tasks.forEach(function(task, index)
+        if (this.tasks[month + '_' + year])
         {
-            if (task instanceof Task && task.id === id)
+            var currentMonthTasks = this.tasks[month + '_' + year];
+            currentMonthTasks.forEach(function(task, index, tasks)
             {
-                this.tasks.splice(index, 1);
-            }
-        }.bind(this));
+                if (task instanceof Task && task.id === id)
+                {
+                    tasks.splice(index, 1);
+                }
+            }.bind(this));
+        }
 
         return this;
     };
@@ -250,19 +260,24 @@ function Calendar(navContainerSelector, containerSelector, month, year)
     this.loadTasksFromStorage = function ()
     {
         var data = localStorage.getItem(this.tasksLocalStorageKey);
+
         try
         {
-            var srcTasks = JSON.parse(data);
+            var tasksObj = JSON.parse(data);
 
-            srcTasks.forEach(function (obj)
+            for (var key in tasksObj)
             {
-                var task = new Task(obj.task, new Date(obj.date));
-                this.tasks.push(task);
-            }.bind(this));
+                this.tasks[key] = [];
+                tasksObj[key].forEach(function (obj)
+                {
+                    var task = new Task(obj.task, new Date(obj.date));
+                    this.tasks[key].push(task);
+                }.bind(this));
+            }
         }
         catch(err)
         {
-            this.tasks = [];
+            this.tasks = {};
         }
     };
 
@@ -323,31 +338,36 @@ function Calendar(navContainerSelector, containerSelector, month, year)
      */
     this.renderTasks = function ()
     {
-        this.tasks.forEach(function(task)
-        {
-            var calendar = document.querySelector(this.selector);
-            if (task instanceof Task && task.date.getMonth() === month)
-            {
-                var taskDay = calendar.querySelector('#day' + task.date.getDate());
-                var taskList = taskDay.querySelector('.task_list');
-                if (!taskList)
-                {
-                    taskList = getTaskList();
-                    taskDay.insertBefore(taskList, taskDay.childNodes[0]);
-                }
-                taskList.appendChild(task.render());
-            }
-        }.bind(this));
-    };
+        var currentMonthTasks = this.tasks[month + '_' + year];
 
+        if (currentMonthTasks)
+        {
+            currentMonthTasks.forEach(function(task)
+            {
+                var calendar = document.querySelector(this.selector);
+
+                if (task instanceof Task)
+                {
+                    var taskDay = calendar.querySelector('#day' + task.date.getDate());
+                    var taskList = taskDay.querySelector('.task_list');
+                    if (!taskList)
+                    {
+                        taskList = getTaskList();
+                        taskDay.insertBefore(taskList, taskDay.childNodes[0]);
+                    }
+                    taskList.appendChild(task.render());
+                }
+            }.bind(this));
+        }
+    };
 
     /**
      *
      */
-    this.render = function ()
+    this.render = function (renderMonth, renderYear)
     {
-        month = [].shift.call(arguments) || month;
-        year = [].shift.call(arguments) || year;
+        month = !isNaN(+renderMonth) ? +renderMonth : month;
+        year = !isNaN(+renderYear) ? +renderYear : year;
 
         this.renderNavigationPanel();
 
