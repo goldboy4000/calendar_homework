@@ -7,10 +7,10 @@
  * Constant names of months
  * @type {[*]}
  */
-var NAMES_OF_MONTHS =  ['January', 'February', 'March',
-    'April', 'May', 'June',
-    'July', 'August', 'September',
-    'October', 'November', 'December'];
+var NAMES_OF_MONTHS =  ['Январь', 'Февраль', 'Март',
+    'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь',
+    'Октябрь', 'Ноябрь', 'Декабрь'];
 
 /**
  *
@@ -45,6 +45,18 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
     {
         return year;
     });
+
+    /**
+     *
+     * @type {*[]}
+     */
+    this.namesOfDays = NAMES_OF_DAYS;
+
+    /**
+     *
+     * @type {*[]}
+     */
+    this.namesOfMonths = NAMES_OF_MONTHS;
 
     /**
      *
@@ -112,16 +124,16 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
      * Creates header element for calendar
      * @returns {Element}
      */
-    var getHeader = function ()
+    this.getHeader = function ()
     {
         var thead = document.createElement('thead');
 
         var headerRow = document.createElement('tr');
         thead.appendChild(headerRow);
 
-        for (var i = 0; i < NAMES_OF_DAYS.length; i++)
+        for (var i = 0; i < this.namesOfDays.length; i++)
         {
-            headerRow.appendChild( getHeaderCell(NAMES_OF_DAYS[i]) );
+            headerRow.appendChild( getHeaderCell(this.namesOfDays[i]) );
         }
 
         return thead;
@@ -146,7 +158,7 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
      * Creates body element for calendar
      * @returns {Element}
      */
-    var getBody = function ()
+    this.getBody = function ()
     {
         var tbody = document.createElement('tbody');
 
@@ -187,14 +199,14 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
      * Creates table element "calendar"
      * @returns {Element}
      */
-    var getCalendarElement = function ()
+    this.getCalendarElement = function ()
     {
         var calendar = document.createElement('table');
         calendar.className = 'table is-bordered';
         calendar.setAttribute('id', this.id);
 
-        calendar.appendChild(getHeader());
-        calendar.appendChild(getBody());
+        calendar.appendChild(this.getHeader());
+        calendar.appendChild(this.getBody());
 
         return calendar;
     };
@@ -295,7 +307,9 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
 
         window.addEventListener('pagehide', exitFromPageHandler.bind(this));
 
-        window.addEventListener('selectdate', menuSelectDateHandler.bind(this))
+        window.addEventListener('selectdate', menuSelectDateHandler.bind(this));
+
+        window.addEventListener('locload', locLoadHandler.bind(this));
     };
 
     /**
@@ -316,7 +330,7 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
     {
         var navigationContainer = document.querySelector(navigation);
         navigationContainer.innerHTML = '';
-        navigationContainer.appendChild( getNavigationElement( NAMES_OF_MONTHS[month] + ' ' + year ) );
+        navigationContainer.appendChild( getNavigationElement( this.namesOfMonths[month] + ' ' + year ) );
     };
 
     /**
@@ -330,7 +344,7 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
         {
             calendarContainer.removeChild(table);
         }
-        calendarContainer.appendChild(getCalendarElement.call(this));
+        calendarContainer.appendChild(this.getCalendarElement());
     };
 
     /**
@@ -425,6 +439,17 @@ function Calendar(navContainerSelector, containerSelector, initMonth, initYear)
         localStorage.setItem(this.tasksLocalStorageKey, JSON.stringify(this));
     };
 
+    /**
+     *
+     * @param e
+     */
+    function locLoadHandler(e)
+    {
+        this.namesOfDays = e.detail.namesOfDays;
+        this.namesOfMonths = e.detail.namesOfMonths;
+        this.render();
+    }
+
 }
 
 /**
@@ -451,7 +476,7 @@ function calendarClickHandler(e)
     {
         this.chosenDay = cell.id.slice(3);
 
-        this.modal.show('Event on ' + this.chosenDay + ' ' + NAMES_OF_MONTHS[this.month] + ' ' + this.year);
+        this.modal.show('Event on ' + this.chosenDay + ' ' + this.namesOfMonths[this.month] + ' ' + this.year);
     }
 
 }

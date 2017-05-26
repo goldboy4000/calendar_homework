@@ -63,7 +63,14 @@ gulp.task('build:html', function()
                                 .pipe(reload({stream: true}));
                         });
 
-gulp.task('build', ['build:html', 'build:js', 'build:css']);
+gulp.task('build:json', function()
+                        {
+                            gulp.src('src/*.json')
+                                .pipe(gulp.dest('build'))
+                                .pipe(reload({stream:true}));
+                        });
+
+gulp.task('build', ['build:html', 'build:js', 'build:css', 'build:json']);
 
 gulp.task('watch', function()
                     {

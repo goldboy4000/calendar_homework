@@ -1,0 +1,24 @@
+{
+  "ruLang":
+  {
+    "namesOfDays": ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"],
+    "namesOfMonths":
+      ["Январь", "Февраль",
+       "Март", "Апрель",
+       "Май", "Июнь",
+       "Июль", "Август",
+       "Сентябрь", "Октябрь",
+       "Ноябрь", "Декабрь"]
+  },
+  "enLang":
+  {
+    "namesOfDays": ["Mon", "Tue", "Wen", "Thu", "Fri", "Sat", "Sun"],
+    "namesOfMonths":
+      ["January", "February",
+       "March", "April",
+       "May", "June",
+       "July", "August",
+       "September", "October",
+       "November", "December"]
+  }
+}
