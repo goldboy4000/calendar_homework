@@ -2,7 +2,6 @@
  * Created by LaBestia on 11.05.2017.
  */
 ;
-var locLoader = new LocalizationLoader();
 (function (window)
 {
     'use strict';
@@ -11,6 +10,8 @@ var locLoader = new LocalizationLoader();
     {
         var locLoader = new LocalizationLoader('data.json');
         locLoader.init();
+
+        var weather = new Weather('Minsk', 'by', 'metric', 'ru').getInfo();
 
         var menu = new Menu('#menu_container', 'show-button', 'month-selector', 'year-selector');
         menu.init().render();
