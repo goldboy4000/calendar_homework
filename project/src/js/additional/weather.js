@@ -52,35 +52,120 @@ Weather.prototype.getInfo = function (apiLink)
  */
 Weather.prototype.render = function(jsonObj)
 {
-    console.log('list = ' + jsonObj.list);
-
     if (!jsonObj.list)
     {
-        var weatherImage = document.querySelector('#weather-image');
-        var weatherTemperatureElement = document.querySelector('#weather-temperature');
-        var weatherCityElement = document.querySelector('#weather-city');
-        var weatherDescriptionElement = document.querySelector('#weather-description');
+        this.element.appendChild(this.renderForecast(this.getForecastObject(jsonObj)));
+    }
+    else
+    {
+        this.element.removeChild(this.element.querySelector('.media'));
 
-        if (jsonObj.weather[0])
-        {
-            weatherImage.src = 'http://openweathermap.org/img/w/' + jsonObj.weather[0].icon + '.png';
-            weatherDescriptionElement.innerHTML = jsonObj.weather[0].description;
-        }
+        var today = new Date();
+        var counter = 0;
 
-        var sign = '';
-        if (+jsonObj.main.temp > 0)
-        {
-            sign = '+';
-        }
-        else if (+jsonObj.main.temp < 0)
-        {
-            sign = '-';
-        }
+        var forecastList = jsonObj.list;
 
-        weatherTemperatureElement.innerHTML = sign + Math.floor(jsonObj.main.temp) + '\u2103';
-        weatherCityElement.innerHTML = jsonObj.name;
+        forecastList.forEach(function(forecast)
+        {
+            var forecastDate = new Date(forecast.dt_txt);
+            if (today.getHours() > 12 && !counter)
+            {
+                this.element.appendChild(this.renderForecast(this.getForecastObject(forecast)));
+                counter++;
+            }
+            if (forecastDate.getHours() === 12 && counter < 3)
+            {
+                this.element.appendChild(this.renderForecast(this.getForecastObject(forecast)));
+                counter++;
+            }
+        }.bind(this));
+    }
+};
+
+/**
+ *
+ * @param jsonObj
+ * @returns {{}}
+ */
+Weather.prototype.getForecastObject = function(jsonObj)
+{
+    var forecastObj = {};
+
+    if (jsonObj.weather[0])
+    {
+        forecastObj.image = 'http://openweathermap.org/img/w/' + jsonObj.weather[0].icon + '.png';
+        forecastObj.description = jsonObj.weather[0].description;
     }
 
+    var sign = '';
+    if (+jsonObj.main.temp > 0)
+    {
+        sign = '+';
+    }
+    else if (+jsonObj.main.temp < 0)
+    {
+        sign = '-';
+    }
+
+    forecastObj.temperature = sign + Math.floor(jsonObj.main.temp) + '\u2103';
+    forecastObj.city = jsonObj.name || '';
+
+    return forecastObj;
+};
+
+/**
+ *
+ * @param forecastObj
+ * @returns {Element}
+ */
+Weather.prototype.renderForecast = function(forecastObj)
+{
+    // image
+    var img = document.createElement('img');
+    img.src = forecastObj.image;
+    img.alt = 'Image';
+
+    var image = document.createElement('figure');
+    image.className = 'image is-64x64';
+    image.appendChild(img);
+
+    var imageContainer = document.createElement('div');
+    imageContainer.className = 'media-left';
+    imageContainer.appendChild(image);
+
+    // content
+    var temperature = document.createElement('span');
+    temperature.innerHTML = forecastObj.temperature;
+
+    var city = document.createElement('span');
+    city.innerHTML = forecastObj.city;
+
+    var description = document.createElement('span');
+    description.innerHTML = forecastObj.description;
+
+    var br = document.createElement('br');
+
+    var text = document.createTextNode(' ');
+
+    var content = document.createElement('div');
+    content.className = 'content';
+    content.appendChild(temperature);
+    content.appendChild(text);
+    content.appendChild(city);
+    content.appendChild(br);
+    content.appendChild(description);
+
+    var contentContainer = document.createElement('div');
+    contentContainer.className = 'media-content';
+    contentContainer.appendChild(content);
+
+    // article
+    var forecastArticle = document.createElement('article');
+    forecastArticle.className = 'media';
+    forecastArticle.appendChild(imageContainer);
+    forecastArticle.appendChild(contentContainer);
+
+    return forecastArticle;
 };
 
 /**
@@ -106,24 +191,6 @@ Weather.prototype.parse = function (jsonStr)
  *
  * @param e
  */
-function closeWeatherClickHandler(e)
-{
-    this.element.style.display = 'none';
-}
-
-/**
- *
- * @param e
- */
-function forecastThreeDaysClickHandler (e)
-{
-    this.getInfo('http://api.openweathermap.org/data/2.5/forecast?q=');
-}
-
-/**
- *
- * @param e
- */
 function clickHandler(e)
 {
     if (e.target.id === 'close-weather')
@@ -134,6 +201,8 @@ function clickHandler(e)
     if (e.target.id === 'forecast-three-days')
     {
         this.getInfo('http://api.openweathermap.org/data/2.5/forecast?q=');
+
+        e.target.style.display = 'none';
     }
 }
 
